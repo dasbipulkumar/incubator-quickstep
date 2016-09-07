@@ -54,7 +54,6 @@
 #include "expressions/window_aggregation/WindowAggregateFunction.pb.h"
 #include "query_execution/QueryContext.hpp"
 #include "query_execution/QueryContext.pb.h"
-#include "query_optimizer/ExecutionHeuristics.hpp"
 #include "query_optimizer/OptimizerContext.hpp"
 #include "query_optimizer/QueryHandle.hpp"
 #include "query_optimizer/QueryPlan.hpp"
@@ -153,9 +152,6 @@ static const volatile bool aggregate_hashtable_type_dummy
 
 DEFINE_bool(parallelize_load, true, "Parallelize loading data files.");
 
-DEFINE_bool(optimize_joins, false,
-            "Enable post execution plan generation optimizations for joins.");
-
 namespace E = ::quickstep::optimizer::expressions;
 namespace P = ::quickstep::optimizer::physical;
 namespace S = ::quickstep::serialization;
@@ -209,11 +205,6 @@ void ExecutionGenerator::generatePlan(const P::PhysicalPtr &physical_plan) {
     execution_plan_->addDependenciesForDropOperator(
         drop_table_index,
         temporary_relation_info.producer_operator_index);
-  }
-
-  // Optimize execution plan based on heuristics captured during execution plan generation, if enabled.
-  if (FLAGS_optimize_joins) {
-    execution_heuristics_->optimizeExecutionPlan(execution_plan_, query_context_proto_);
   }
 
 #ifdef QUICKSTEP_DISTRIBUTED
@@ -828,17 +819,6 @@ void ExecutionGenerator::convertHashJoin(const P::HashJoinPtr &physical_plan) {
       std::forward_as_tuple(join_operator_index,
                             output_relation));
   temporary_relation_info_vec_.emplace_back(join_operator_index, output_relation);
-
-  // Add heuristics for the Hash Join, if enabled.
-  if (FLAGS_optimize_joins && !skip_hash_join_optimization) {
-    execution_heuristics_->addHashJoinInfo(build_operator_index,
-                                           join_operator_index,
-                                           referenced_stored_build_relation,
-                                           referenced_stored_probe_relation,
-                                           std::move(build_original_attribute_ids),
-                                           std::move(probe_original_attribute_ids),
-                                           join_hash_table_index);
-  }
 }
 
 void ExecutionGenerator::convertNestedLoopsJoin(
