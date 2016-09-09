@@ -29,6 +29,7 @@
 #include "query_optimizer/expressions/AttributeReference.hpp"
 #include "query_optimizer/expressions/ExprId.hpp"
 #include "query_optimizer/expressions/ExpressionUtil.hpp"
+#include "query_optimizer/physical/LIPFilterConfiguration.hpp"
 #include "query_optimizer/physical/Physical.hpp"
 #include "query_optimizer/physical/PhysicalType.hpp"
 #include "utility/Macros.hpp"
@@ -120,6 +121,18 @@ class TopLevelPlan : public Physical {
     return false;
   }
 
+  TopLevelPlanPtr copyWithLIPFilterConfiguration(
+      const LIPFilterConfigurationPtr &new_lip_filter_configuration) const {
+    return TopLevelPlan::Create(plan_,
+                                shared_subplans_,
+                                uncorrelated_subquery_map_,
+                                new_lip_filter_configuration);
+  }
+
+  const LIPFilterConfigurationPtr& lip_filter_configuration() const {
+    return lip_filter_configuration_;
+  }
+
   /**
    * @brief Creates a TopLevelPlan.
    *
@@ -133,10 +146,12 @@ class TopLevelPlan : public Physical {
       const PhysicalPtr &plan,
       const std::vector<PhysicalPtr> &shared_subplans = {},
       const std::unordered_map<expressions::ExprId, int> &uncorrelated_subquery_map
-          = std::unordered_map<expressions::ExprId, int>()) {
+          = std::unordered_map<expressions::ExprId, int>(),
+      const LIPFilterConfigurationPtr &lip_filter_configuration = nullptr) {
     return TopLevelPlanPtr(new TopLevelPlan(plan,
                                             shared_subplans,
-                                            uncorrelated_subquery_map));
+                                            uncorrelated_subquery_map,
+                                            lip_filter_configuration));
   }
 
  protected:
@@ -151,10 +166,12 @@ class TopLevelPlan : public Physical {
  private:
   TopLevelPlan(const PhysicalPtr &plan,
                const std::vector<PhysicalPtr> &shared_subplans,
-               const std::unordered_map<expressions::ExprId, int> &uncorrelated_subquery_map)
+               const std::unordered_map<expressions::ExprId, int> &uncorrelated_subquery_map,
+               const LIPFilterConfigurationPtr &lip_filter_configuration)
       : plan_(plan),
         shared_subplans_(shared_subplans),
-        uncorrelated_subquery_map_(uncorrelated_subquery_map) {
+        uncorrelated_subquery_map_(uncorrelated_subquery_map),
+        lip_filter_configuration_(lip_filter_configuration) {
     addChild(plan);
     for (const PhysicalPtr &shared_subplan : shared_subplans) {
       addChild(shared_subplan);
@@ -165,6 +182,7 @@ class TopLevelPlan : public Physical {
   // Stored in the topological ordering based on dependencies.
   std::vector<PhysicalPtr> shared_subplans_;
   std::unordered_map<expressions::ExprId, int> uncorrelated_subquery_map_;
+  LIPFilterConfigurationPtr lip_filter_configuration_;
 
   DISALLOW_COPY_AND_ASSIGN(TopLevelPlan);
 };
