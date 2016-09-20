@@ -52,7 +52,6 @@ target_link_libraries(quickstep_queryoptimizer_physical_Aggregate
                       quickstep_queryoptimizer_expressions_ExpressionUtil
                       quickstep_queryoptimizer_expressions_NamedExpression
                       quickstep_queryoptimizer_expressions_Predicate
-                      quickstep_queryoptimizer_physical_LIPFilterConfiguration
                       quickstep_queryoptimizer_physical_Physical
                       quickstep_queryoptimizer_physical_PhysicalType
                       quickstep_utility_Cast
@@ -123,7 +122,6 @@ target_link_libraries(quickstep_queryoptimizer_physical_HashJoin
                       quickstep_queryoptimizer_expressions_NamedExpression
                       quickstep_queryoptimizer_expressions_Predicate
                       quickstep_queryoptimizer_physical_BinaryJoin
-                      quickstep_queryoptimizer_physical_LIPFilterConfiguration
                       quickstep_queryoptimizer_physical_Physical
                       quickstep_queryoptimizer_physical_PhysicalType
                       quickstep_utility_Cast
@@ -155,8 +153,8 @@ target_link_libraries(quickstep_queryoptimizer_physical_Join
                       quickstep_utility_Macros)
 target_link_libraries(quickstep_queryoptimizer_physical_LIPFilterConfiguration
                       quickstep_queryoptimizer_expressions_AttributeReference
-                      quickstep_utility_LIPFilter
-                      quickstep_utility_Macros)
+                      quickstep_utility_Macros
+                      quickstep_utility_lipfilter_LIPFilter)
 target_link_libraries(quickstep_queryoptimizer_physical_NestedLoopsJoin
                       glog
                       quickstep_queryoptimizer_OptimizerTree
@@ -174,7 +172,6 @@ target_link_libraries(quickstep_queryoptimizer_physical_Physical
                       quickstep_queryoptimizer_OptimizerTree
                       quickstep_queryoptimizer_expressions_AttributeReference
                       quickstep_queryoptimizer_expressions_ExpressionUtil
-                      quickstep_queryoptimizer_physical_LIPFilterConfiguration
                       quickstep_queryoptimizer_physical_PhysicalType
                       quickstep_utility_Macros)
 target_link_libraries(quickstep_queryoptimizer_physical_Sample
@@ -195,7 +192,6 @@ target_link_libraries(quickstep_queryoptimizer_physical_Selection
                       quickstep_queryoptimizer_expressions_LogicalAnd
                       quickstep_queryoptimizer_expressions_NamedExpression
                       quickstep_queryoptimizer_expressions_Predicate
-                      quickstep_queryoptimizer_physical_LIPFilterConfiguration
                       quickstep_queryoptimizer_physical_Physical
                       quickstep_queryoptimizer_physical_PhysicalType
                       quickstep_utility_Cast
@@ -246,6 +242,7 @@ target_link_libraries(quickstep_queryoptimizer_physical_TopLevelPlan
                       quickstep_queryoptimizer_expressions_AttributeReference
                       quickstep_queryoptimizer_expressions_ExprId
                       quickstep_queryoptimizer_expressions_ExpressionUtil
+                      quickstep_queryoptimizer_physical_LIPFilterConfiguration
                       quickstep_queryoptimizer_physical_Physical
                       quickstep_queryoptimizer_physical_PhysicalType
                       quickstep_utility_Cast

@@ -39,7 +39,7 @@
 #include "query_optimizer/physical/Physical.hpp"
 #include "query_optimizer/physical/PhysicalType.hpp"
 #include "query_optimizer/physical/TopLevelPlan.hpp"
-#include "utility/LIPFilter.hpp"
+#include "utility/lip_filter/LIPFilter.hpp"
 
 #include "glog/logging.h"
 

@@ -17,10 +17,12 @@
  * under the License.
  **/
 
-#ifndef QUICKSTEP_UTILITY_LIP_FILTER_HPP_
-#define QUICKSTEP_UTILITY_LIP_FILTER_HPP_
+#ifndef QUICKSTEP_UTILITY_LIP_FILTER_LIP_FILTER_FACTORY_HPP_
+#define QUICKSTEP_UTILITY_LIP_FILTER_LIP_FILTER_FACTORY_HPP_
 
 #include <vector>
+
+#include "utility/Macros.hpp"
 
 #include "glog/logging.h"
 
@@ -30,15 +32,16 @@ namespace quickstep {
  *  @{
  */
 
-enum class LIPFilterType {
-  kBloomFilter,
-  kExactFilter,
-  kSingleIdentityHashFilter
-};
+class LIPFilterFactory {
+ public:
 
+ private:
+
+  DISALLOW_COPY_AND_ASSIGN(LIPFilterFactory);
+};
 
 /** @} */
 
 }  // namespace quickstep
 
-#endif  // QUICKSTEP_UTILITY_LIP_FILTER_HPP_
+#endif  // QUICKSTEP_UTILITY_LIP_FILTER_LIP_FILTER_FACTORY_HPP_

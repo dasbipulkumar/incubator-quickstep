@@ -26,7 +26,7 @@
 #include <vector>
 
 #include "query_optimizer/expressions/AttributeReference.hpp"
-#include "utility/LIPFilter.hpp"
+#include "utility/lip_filter/LIPFilter.hpp"
 #include "utility/Macros.hpp"
 
 #include "glog/logging.h"
@@ -64,7 +64,6 @@ struct LIPFilterProbeInfo {
         builder(builder_in) {
   }
   expressions::AttributeReferencePtr probe_attribute;
-  PhysicalPtr target;
   expressions::AttributeReferencePtr build_attribute;
   PhysicalPtr builder;
 };

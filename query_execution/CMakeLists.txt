@@ -189,11 +189,11 @@ target_link_libraries(quickstep_queryexecution_QueryContext
                       quickstep_storage_WindowAggregationOperationState
                       quickstep_types_TypedValue
                       quickstep_types_containers_Tuple
-                      quickstep_utility_BloomFilter
                       quickstep_utility_Macros
-                      quickstep_utility_SortConfiguration)
+                      quickstep_utility_SortConfiguration
+                      quickstep_utility_lipfilter_LIPFilter
+                      quickstep_utility_lipfilter_LIPFilterDeploymentInfo)
 target_link_libraries(quickstep_queryexecution_QueryContext_proto
-                      quickstep_utility_BloomFilter_proto
                       quickstep_expressions_Expressions_proto
                       quickstep_expressions_tablegenerator_GeneratorFunction_proto
                       quickstep_storage_AggregationOperationState_proto
@@ -202,6 +202,7 @@ target_link_libraries(quickstep_queryexecution_QueryContext_proto
                       quickstep_storage_WindowAggregationOperationState_proto
                       quickstep_types_containers_Tuple_proto
                       quickstep_utility_SortConfiguration_proto
+                      quickstep_utility_lipfilter_LIPFilter_proto
                       ${PROTOBUF_LIBRARY})
 target_link_libraries(quickstep_queryexecution_QueryExecutionMessages_proto
                       quickstep_catalog_Catalog_proto

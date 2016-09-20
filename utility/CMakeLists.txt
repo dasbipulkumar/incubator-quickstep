@@ -156,6 +156,8 @@ QS_PROTOBUF_GENERATE_CPP(quickstep_utility_SortConfiguration_proto_srcs
                          quickstep_utility_SortConfiguration_proto_hdrs
                          SortConfiguration.proto)
 
+add_subdirectory(lip_filter)
+
 # Declare micro-libs:
 add_library(quickstep_utility_Alignment ../empty_src.cpp Alignment.hpp)
 add_library(quickstep_utility_BitManipulation ../empty_src.cpp BitManipulation.hpp)
@@ -174,7 +176,6 @@ add_library(quickstep_utility_ExecutionDAGVisualizer
             ExecutionDAGVisualizer.hpp)
 add_library(quickstep_utility_Glob Glob.cpp Glob.hpp)
 add_library(quickstep_utility_HashPair ../empty_src.cpp HashPair.hpp)
-add_library(quickstep_utility_LIPFilter LIPFilter.cpp LIPFilter.hpp)
 add_library(quickstep_utility_Macros ../empty_src.cpp Macros.hpp)
 add_library(quickstep_utility_MemStream ../empty_src.cpp MemStream.hpp)
 add_library(quickstep_utility_PlanVisualizer PlanVisualizer.cpp PlanVisualizer.hpp)
@@ -245,8 +246,6 @@ target_link_libraries(quickstep_utility_ExecutionDAGVisualizer
                       quickstep_utility_StringUtil)
 target_link_libraries(quickstep_utility_Glob
                       glog)
-target_link_libraries(quickstep_utility_LIPFilter
-                      glog)
 target_link_libraries(quickstep_utility_MemStream
                       glog
                       quickstep_utility_Macros)
@@ -254,11 +253,16 @@ target_link_libraries(quickstep_utility_PrimeNumber
                       glog)
 target_link_libraries(quickstep_utility_PlanVisualizer
                       quickstep_catalog_CatalogRelation
+                      quickstep_catalog_CatalogRelationStatistics
+                      quickstep_catalog_CatalogTypedefs
                       quickstep_queryoptimizer_costmodel_StarSchemaSimpleCostModel
                       quickstep_queryoptimizer_expressions_AttributeReference
+                      quickstep_queryoptimizer_physical_Aggregate
                       quickstep_queryoptimizer_physical_HashJoin
+                      quickstep_queryoptimizer_physical_LIPFilterConfiguration
                       quickstep_queryoptimizer_physical_Physical
                       quickstep_queryoptimizer_physical_PhysicalType
+                      quickstep_queryoptimizer_physical_Selection
                       quickstep_queryoptimizer_physical_TableReference
                       quickstep_queryoptimizer_physical_TopLevelPlan
                       quickstep_utility_Macros
@@ -326,7 +330,6 @@ target_link_libraries(quickstep_utility
                       quickstep_utility_ExecutionDAGVisualizer
                       quickstep_utility_Glob
                       quickstep_utility_HashPair
-                      quickstep_utility_LIPFilter
                       quickstep_utility_Macros
                       quickstep_utility_MemStream
                       quickstep_utility_PlanVisualizer

@@ -17,7 +17,7 @@
  * under the License.
  **/
 
-#include "utility/LIPFilter.hpp"
+#include "utility/lip_filter/LIPFilter.hpp"
 
 namespace quickstep {
 

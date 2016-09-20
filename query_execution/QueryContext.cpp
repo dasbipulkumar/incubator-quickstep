@@ -39,7 +39,7 @@
 #include "storage/InsertDestination.pb.h"
 #include "types/TypedValue.hpp"
 #include "types/containers/Tuple.hpp"
-#include "utility/BloomFilter.hpp"
+#include "utility/lip_filter/LIPFilter.hpp"
 #include "utility/SortConfiguration.hpp"
 
 #include "glog/logging.h"
@@ -68,9 +68,9 @@ QueryContext::QueryContext(const serialization::QueryContext &proto,
                                                         storage_manager));
   }
 
-  for (int i = 0; i < proto.bloom_filters_size(); ++i) {
-    bloom_filters_.emplace_back(new BloomFilter(proto.bloom_filters(i)));
-  }
+//  for (int i = 0; i < proto.bloom_filters_size(); ++i) {
+//    bloom_filters_.emplace_back(new BloomFilter(proto.bloom_filters(i)));
+//  }
 
   for (int i = 0; i < proto.generator_functions_size(); ++i) {
     const GeneratorFunctionHandle *func_handle =
@@ -80,12 +80,12 @@ QueryContext::QueryContext(const serialization::QueryContext &proto,
         std::unique_ptr<const GeneratorFunctionHandle>(func_handle));
   }
 
-  for (int i = 0; i < proto.join_hash_tables_size(); ++i) {
-    join_hash_tables_.emplace_back(
-        JoinHashTableFactory::CreateResizableFromProto(proto.join_hash_tables(i),
-                                                       storage_manager,
-                                                       bloom_filters_));
-  }
+//  for (int i = 0; i < proto.join_hash_tables_size(); ++i) {
+//    join_hash_tables_.emplace_back(
+//        JoinHashTableFactory::CreateResizableFromProto(proto.join_hash_tables(i),
+//                                                       storage_manager,
+//                                                       bloom_filters_));
+//  }
 
   for (int i = 0; i < proto.insert_destinations_size(); ++i) {
     const serialization::InsertDestination &insert_destination_proto = proto.insert_destinations(i);
@@ -157,11 +157,11 @@ bool QueryContext::ProtoIsValid(const serialization::QueryContext &proto,
     }
   }
 
-  for (int i = 0; i < proto.bloom_filters_size(); ++i) {
-    if (!BloomFilter::ProtoIsValid(proto.bloom_filters(i))) {
-      return false;
-    }
-  }
+//  for (int i = 0; i < proto.bloom_filters_size(); ++i) {
+//    if (!BloomFilter::ProtoIsValid(proto.bloom_filters(i))) {
+//      return false;
+//    }
+//  }
 
   // Each GeneratorFunctionHandle object is serialized as a function name with
   // a list of arguments. Here checks that the arguments are valid TypedValue's.
