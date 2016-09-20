@@ -22,10 +22,9 @@
 
 #include <vector>
 
+#include "catalog/CatalogTypedefs.hpp"
 #include "utility/Macros.hpp"
 #include "utility/lip_filter/LIPFilter.hpp"
-
-#include "catalog/CatalogTypeDefs.hpp"
 
 namespace quickstep {
 

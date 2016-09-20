@@ -22,7 +22,7 @@
 
 #include <vector>
 
-#include "catalog/CatalogTypeDefs.hpp"
+#include "catalog/CatalogTypedefs.hpp"
 #include "utility/Macros.hpp"
 
 namespace quickstep {

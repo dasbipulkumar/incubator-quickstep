@@ -23,7 +23,7 @@
 #include <map>
 #include <unordered_map>
 
-#include "catalog/CatalogTypeDefs.hpp"
+#include "catalog/CatalogTypedefs.hpp"
 #include "query_execution/QueryContext.hpp"
 #include "query_execution/QueryContext.pb.h"
 #include "query_optimizer/QueryPlan.hpp"
@@ -72,6 +72,9 @@ class LIPFilterGenerator {
     selection_infos_.emplace_back(selection, select_operator_index);
   }
 
+  void deployLIPFilters(QueryPlan *execution_plan,
+                        serialization::QueryContext *query_context_proto) const;
+
  private:
   struct AggregateInfo {
     AggregateInfo(const physical::AggregatePtr &aggregate_in,
@@ -110,7 +113,7 @@ class LIPFilterGenerator {
   };
 
   const physical::LIPFilterConfigurationPtr lip_filter_configuration_;
-  std::map<physical::PhysicalPtr, std::map<expressions::ExprId, attribute_id>> attribute_map_;
+  std::map<physical::PhysicalPtr, std::map<expressions::ExprId, const CatalogAttribute *>> attribute_map_;
   std::map<physical::PhysicalPtr, QueryPlan::DAGNodeIndex> builder_op_index_map_;
   std::vector<AggregateInfo> aggregate_infos_;
   std::vector<HashJoinInfo> hash_join_infos_;

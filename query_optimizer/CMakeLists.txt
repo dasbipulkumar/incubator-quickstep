@@ -156,7 +156,7 @@ endif()
 target_link_libraries(quickstep_queryoptimizer_LIPFilterGenerator
                       glog
                       quickstep_catalog_CatalogAttribute
-                      quickstep_catalog_CatalogTypeDefs
+                      quickstep_catalog_CatalogTypedefs
                       quickstep_queryexecution_QueryContext
                       quickstep_queryexecution_QueryContext_proto
                       quickstep_queryoptimizer_QueryPlan
@@ -164,7 +164,9 @@ target_link_libraries(quickstep_queryoptimizer_LIPFilterGenerator
                       quickstep_queryoptimizer_physical_HashJoin
                       quickstep_queryoptimizer_physical_LIPFilterConfiguration
                       quickstep_queryoptimizer_physical_Physical
-                      quickstep_queryoptimizer_physical_Selection)
+                      quickstep_queryoptimizer_physical_Selection
+                      quickstep_utility_lipfilter_LIPFilter
+                      quickstep_utility_lipfilter_LIPFilter_proto)
 target_link_libraries(quickstep_queryoptimizer_LogicalGenerator
                       glog
                       quickstep_parser_ParseStatement

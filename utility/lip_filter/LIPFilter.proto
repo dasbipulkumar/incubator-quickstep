@@ -40,12 +40,12 @@ message SingleIdentityHashFilter {
   }
 }
 
-message LIPFilterDeploymentInfo {
-  enum LIPFilterActionType {
-    BUILD = 1;
-    PROBE = 2;
-  }
+enum LIPFilterActionType {
+  BUILD = 1;
+  PROBE = 2;
+}
 
+message LIPFilterDeploymentInfo {
   required LIPFilterActionType action_type = 1;
   required uint32 lip_filter_id = 2;
   required int32 attribute_id = 3;

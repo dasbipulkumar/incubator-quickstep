@@ -24,7 +24,7 @@
 
 #include "utility/Macros.hpp"
 
-#include "catalog/CatalogTypeDefs.hpp"
+#include "catalog/CatalogTypedefs.hpp"
 
 namespace quickstep {
 

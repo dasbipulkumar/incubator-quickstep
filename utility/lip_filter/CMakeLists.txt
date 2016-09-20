@@ -32,13 +32,13 @@ add_library(quickstep_utility_lipfilter_LIPFilter_proto
 target_link_libraries(quickstep_utility_lipfilter_LIPFilter
                       quickstep_utility_Macros)
 target_link_libraries(quickstep_utility_lipfilter_LIPFilterAdaptiveProber
-                      quickstep_catalog_CatalogTypeDefs
+                      quickstep_catalog_CatalogTypedefs
                       quickstep_utility_Macros)
 target_link_libraries(quickstep_utility_lipfilter_LIPFilterBuilder
-                      quickstep_catalog_CatalogTypeDefs
+                      quickstep_catalog_CatalogTypedefs
                       quickstep_utility_Macros)
 target_link_libraries(quickstep_utility_lipfilter_LIPFilterDeploymentInfo
-                      quickstep_catalog_CatalogTypeDefs
+                      quickstep_catalog_CatalogTypedefs
                       quickstep_utility_Macros
                       quickstep_utility_lipfilter_LIPFilter)
 target_link_libraries(quickstep_utility_lipfilter_LIPFilterFactory
