@@ -77,7 +77,7 @@ class HashTablePool {
                 const std::vector<const Type *> &group_by_types,
                 AggregationHandle *agg_handle,
                 StorageManager *storage_manager)
-      : estimated_num_entries_(reduceEstimatedCardinality(estimated_num_entries)),
+      : estimated_num_entries_(setHashTableSize()),
         hash_table_impl_type_(hash_table_impl_type),
         group_by_types_(group_by_types),
         agg_handle_(DCHECK_NOTNULL(agg_handle)),
@@ -104,7 +104,7 @@ class HashTablePool {
                 const std::vector<std::size_t> &payload_sizes,
                 const std::vector<AggregationHandle *> &handles,
                 StorageManager *storage_manager)
-      : estimated_num_entries_(reduceEstimatedCardinality(estimated_num_entries)),
+      : estimated_num_entries_(setHashTableSize()),
         hash_table_impl_type_(hash_table_impl_type),
         group_by_types_(group_by_types),
         payload_sizes_(payload_sizes),
@@ -196,17 +196,12 @@ class HashTablePool {
                 storage_manager_);
   }
 
-  inline std::size_t reduceEstimatedCardinality(
-      const std::size_t original_estimate) const {
-    if (original_estimate < kEstimateReductionFactor) {
-      return original_estimate;
-    } else {
-      DCHECK_GT(kEstimateReductionFactor, 0u);
-      return original_estimate / kEstimateReductionFactor;
-    }
+  inline std::size_t setHashTableSize() const {
+    return kHashTableSize;
   }
 
-  static constexpr std::size_t kEstimateReductionFactor = 100;
+  // L2 cache size.
+  static constexpr std::size_t kHashTableSize = 262144;
 
   std::vector<std::unique_ptr<AggregationStateHashTableBase>> hash_tables_;
 

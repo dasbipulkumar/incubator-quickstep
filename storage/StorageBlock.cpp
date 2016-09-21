@@ -41,6 +41,7 @@
 #include "storage/IndexSubBlock.hpp"
 #include "storage/InsertDestinationInterface.hpp"
 #include "storage/PackedRowStoreTupleStorageSubBlock.hpp"
+#include "storage/PartitionedHashTablePool.hpp"
 #include "storage/SMAIndexSubBlock.hpp"
 #include "storage/SplitRowStoreTupleStorageSubBlock.hpp"
 #include "storage/StorageBlockBase.hpp"
@@ -1367,6 +1368,120 @@ void StorageBlock::invalidateAllIndexes() {
 const std::size_t StorageBlock::getNumTuples() const {
   DCHECK(tuple_store_ != nullptr);
   return tuple_store_->numTuples();
+}
+
+void StorageBlock::aggregateGroupByPartitioned(
+    const std::vector<std::vector<std::unique_ptr<const Scalar>>> &arguments,
+    const std::vector<std::unique_ptr<const Scalar>> &group_by,
+    const Predicate *predicate,
+    std::unique_ptr<TupleIdSequence> *reuse_matches,
+    std::vector<std::unique_ptr<ColumnVector>> *reuse_group_by_vectors,
+    PartitionedHashTablePool *hashtable_pool) const {
+  DCHECK(!group_by.empty())
+      << "Called aggregateGroupByPartitioned() with zero GROUP BY expressions";
+
+  SubBlocksReference sub_blocks_ref(*tuple_store_,
+                                    indices_,
+                                    indices_consistent_);
+
+  // IDs of 'arguments' as attributes in the ValueAccessor we create below.
+  std::vector<attribute_id> arg_ids;
+  std::vector<attribute_id> argument_ids;
+
+  // IDs of GROUP BY key element(s) in the ValueAccessor we create below.
+  std::vector<attribute_id> key_ids;
+
+  // An intermediate ValueAccessor that stores the materialized 'arguments' for
+  // this aggregate, as well as the GROUP BY expression values.
+  ColumnVectorsValueAccessor temp_result;
+  std::unique_ptr<ValueAccessor> accessor;
+  if (predicate) {
+    if (!*reuse_matches) {
+      // If there is a filter predicate that hasn't already been evaluated,
+      // evaluate it now and save the results for other aggregates on this
+      // same block.
+      reuse_matches->reset(getMatchesForPredicate(predicate));
+    }
+
+    // Create a filtered ValueAccessor that only iterates over predicate
+    // matches.
+    accessor.reset(tuple_store_->createValueAccessor(reuse_matches->get()));
+  } else {
+    // Create a ValueAccessor that iterates over all tuples in this block
+    accessor.reset(tuple_store_->createValueAccessor());
+  }
+
+  attribute_id attr_id = 0;
+
+  // First, put GROUP BY keys into 'temp_result'.
+  if (reuse_group_by_vectors->empty()) {
+    // Compute GROUP BY values from group_by Scalars, and store them in
+    // reuse_group_by_vectors for reuse by other aggregates on this same
+    // block.
+    reuse_group_by_vectors->reserve(group_by.size());
+    for (const std::unique_ptr<const Scalar> &group_by_element : group_by) {
+      reuse_group_by_vectors->emplace_back(
+          group_by_element->getAllValues(accessor.get(), &sub_blocks_ref));
+      temp_result.addColumn(reuse_group_by_vectors->back().get(), false);
+      key_ids.push_back(attr_id++);
+    }
+  } else {
+    // Reuse precomputed GROUP BY values from reuse_group_by_vectors.
+    DCHECK_EQ(group_by.size(), reuse_group_by_vectors->size())
+        << "Wrong number of reuse_group_by_vectors";
+    for (const std::unique_ptr<ColumnVector> &reuse_cv : *reuse_group_by_vectors) {
+      temp_result.addColumn(reuse_cv.get(), false);
+      key_ids.push_back(attr_id++);
+    }
+  }
+
+  // Compute argument vectors and add them to 'temp_result'.
+  for (const std::vector<std::unique_ptr<const Scalar>> &argument : arguments) {
+    arg_ids.clear();
+    for (const std::unique_ptr<const Scalar> &args : argument) {
+      temp_result.addColumn(args->getAllValues(accessor.get(), &sub_blocks_ref));
+      argument_ids.push_back(attr_id++);
+    }
+    if (argument.empty()) {
+      argument_ids.push_back(kInvalidAttributeID);
+    }
+  }
+
+  // Compute the partitions for the tuple formed by group by values.
+  std::vector<std::unique_ptr<TupleIdSequence>> partition_membership;
+  partition_membership.resize(hashtable_pool->getNumPartitions());
+
+  // Create a tuple-id sequence for each partition.
+  for (std::size_t partition = 0;
+       partition < hashtable_pool->getNumPartitions();
+       ++partition) {
+    partition_membership[partition].reset(new TupleIdSequence(temp_result.getEndPosition()));
+  }
+
+  // Iterate over ValueAccessor for each tuple,
+  // set a bit in the appropriate TupleIdSequence.
+  temp_result.beginIteration();
+  while (temp_result.next()) {
+    const std::size_t curr_tuple_partition_id =
+        temp_result.getTupleWithAttributes(key_ids)->getTupleHash() %
+        hashtable_pool->getNumPartitions();
+    partition_membership[curr_tuple_partition_id]->set(
+        temp_result.getCurrentPosition(), true);
+  }
+  // For each partition, create an adapter around Value Accessor and
+  // TupleIdSequence.
+  std::vector<std::unique_ptr<
+      TupleIdSequenceAdapterValueAccessor<ColumnVectorsValueAccessor>>> adapter;
+  adapter.resize(hashtable_pool->getNumPartitions());
+  for (std::size_t partition = 0;
+       partition < hashtable_pool->getNumPartitions();
+       ++partition) {
+    adapter[partition].reset(temp_result.createSharedTupleIdSequenceAdapter(
+        *partition_membership[partition]));
+    hashtable_pool->getHashTable(partition)
+        ->upsertValueAccessorCompositeKeyFast(
+            argument_ids, adapter[partition].get(), key_ids, true);
+  }
 }
 
 }  // namespace quickstep
